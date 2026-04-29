@@ -1,7 +1,6 @@
-package consoleX
+package tries.consoleX
 
-import console.{Console, Print, Read}
-
+import tries.console.{Console, Print, Read}
 
 
 def apply[A](ca: Console ?=> A): A =

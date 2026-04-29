@@ -1,7 +1,8 @@
 package tries.capa
 
-import console.{Console, Print, Read}
+import tries.console.{Console, Print, Read, printNot, readConst}
 
+import java.lang.System.console
 import scala.util.Random
 
 
@@ -44,8 +45,8 @@ object Guess extends App:
 //    console:
 //      run
 
-  console.printNot:
-    console.readConst("5"):
+  tries.console.printNot:
+    tries.console.readConst("5"):
       constInt(6):
         assert(run)
 

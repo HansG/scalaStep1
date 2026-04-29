@@ -4,7 +4,7 @@ This file provides guidance to Cline  when working with code in this repository.
 
 ## Build & Test Commands
 
-* As far as available (e.g., via MCP)  ALWAYS use tools to compile and run tests instead of relying on
+* As far as available (e.g., via MCP)  always use tools to compile and run tests instead of relying on
   bash commands
 * after adding a dependency to `build.sbt`, run the
   `import-build` tool

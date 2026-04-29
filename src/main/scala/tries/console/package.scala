@@ -1,4 +1,4 @@
-package console
+package tries.console
 
 trait Print:
   def println(s: String): Unit

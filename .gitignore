@@ -1,0 +1,26 @@
+# SBT build artifacts
+target/
+project/target/
+project/project/target/
+
+# SBT settings
+.bsp/
+.bloop/
+
+# Metals (Scala LSP)
+.metals/
+.bloop/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -22,6 +22,12 @@ def constInt[R](c: Int)(m : Rand ?=> R): R =
     override def range(min: Int, max: Int) = c
   m(using handler)
 
+def constInt1[R](c: Int)(m : (Rand, Read, Print) ?=> R): Print ?=> R =
+  val handler1 = new Rand:
+    override def range(min: Int, max: Int) = c + 1
+  readConst("5"):
+    m(using handler1)
+
 
 object Guess extends App:
 
@@ -46,9 +52,13 @@ object Guess extends App:
 //      run
 
   tries.console.printNot:
-    tries.console.readConst("5"):
-      constInt(6):
+      constInt1(4):
         assert(run)
+
+//  tries.console.printNot:
+//    tries.console.readConst("5"):
+//      constInt(6):
+//        assert(run)
 
   val runSwapped: (Console, Rand) ?=> Boolean = run
 

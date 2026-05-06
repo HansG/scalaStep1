@@ -24,4 +24,3 @@ object UserRoutes :
       req.as[User].flatMap { user =>
         usersRef.update(_ :+ user) *> Created(user)
       }
-    

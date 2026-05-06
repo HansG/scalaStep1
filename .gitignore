@@ -9,7 +9,6 @@ project/project/target/
 
 # Metals (Scala LSP)
 .metals/
-.bloop/
 
 # IDE
 .vscode/

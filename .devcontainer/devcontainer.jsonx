@@ -1,0 +1,55 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
+{
+	"name": "Java",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/java:3-21",
+
+	// Add a hosts entry so the container can resolve the corporate proxy hostname.
+	// proxy.akdb.net resolves to 172.31.150.47 on the WSL2 host but Docker containers
+	// cannot reach the corporate DNS, causing "Connecting to proxy.akdb.net" hangs.
+	"runArgs": ["--add-host=proxy.akdb.net:172.31.150.47"],
+
+	// Forward proxy settings from the WSL2 host into the container.
+	// ${localEnv:VAR} is resolved on the host at container start — credentials are NOT
+	// stored in this file and do NOT appear in git history.
+	// JAVA_TOOL_OPTIONS is automatically picked up by every JVM process (sbt, Coursier, …).
+	"containerEnv": {
+		"http_proxy":        "${localEnv:http_proxy}",
+		"https_proxy":       "${localEnv:https_proxy}",
+		"HTTP_PROXY":        "${localEnv:HTTP_PROXY}",
+		"HTTPS_PROXY":       "${localEnv:HTTPS_PROXY}",
+		"ftp_proxy":         "${localEnv:ftp_proxy}",
+		"FTP_PROXY":         "${localEnv:FTP_PROXY}",
+		"no_proxy":          "${localEnv:no_proxy}",
+		"NO_PROXY":          "${localEnv:no_proxy}",
+		"JAVA_TOOL_OPTIONS": "${localEnv:CS_JAVA_OPTS}"
+	},
+
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "false",
+			"installGradle": "false"
+		},
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Install sbt and Scala after container creation.
+	// Notes:
+	//   - apt proxy is written first from $http_proxy / $https_proxy (set via containerEnv above)
+	//   - apt-key was removed in Debian 13 (trixie); gpg --dearmor + /etc/apt/keyrings/ is used
+	//   - curl uses $https_proxy automatically once containerEnv is in effect
+	//   - JAVA_TOOL_OPTIONS carries the JVM proxy flags for sbt and Coursier
+	//   - Coursier installs Scala 3.7.4 (matches scalaVersion in build.sbt)
+	"postCreateCommand": "printf 'Acquire::http::Proxy \"%s\";\\nAcquire::https::Proxy \"%s\";\\n' \"$http_proxy\" \"$https_proxy\" > /etc/apt/apt.conf.d/01proxy && apt-get update && apt-get install -y gnupg curl && mkdir -p /etc/apt/keyrings && curl -sL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823' | gpg --dearmor > /etc/apt/keyrings/sbt.gpg && echo 'deb [signed-by=/etc/apt/keyrings/sbt.gpg] https://repo.scala-sbt.org/scalasbt/debian all main' | tee /etc/apt/sources.list.d/sbt.list && apt-get update && apt-get install -y sbt && curl -fL 'https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz' | gzip -d > /usr/local/bin/cs && chmod +x /usr/local/bin/cs && cs install --install-dir /usr/local/bin scala3:3.7.4 scalac:3.7.4 && java -version && sbt --version && scala --version",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "root"
+}

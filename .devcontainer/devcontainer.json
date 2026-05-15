@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
+{
+	"name": "Java",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// Image already contains Java 25 (Temurin), sbt 1.12.11, Scala 3.8.3 — no postCreateCommand needed.
+	"image": "sbtscala/scala-sbt:eclipse-temurin-25.0.1_8_1.12.11_3.8.3",
+
+	// Add a hosts entry so the container can resolve the corporate proxy hostname.
+	// proxy.akdb.net resolves to 172.31.150.47 on the WSL2 host but Docker containers
+	// cannot reach the corporate DNS, causing "Connecting to proxy.akdb.net" hangs.
+	"runArgs": ["--add-host=proxy.akdb.net:172.31.150.47"],
+
+	// Forward proxy settings from the WSL2 host into the container.
+	// ${localEnv:VAR} is resolved on the host at container start — credentials are NOT
+	// stored in this file and do NOT appear in git history.
+	// JAVA_TOOL_OPTIONS is automatically picked up by every JVM process (sbt, Coursier, …).
+	"containerEnv": {
+		"http_proxy":        "${localEnv:http_proxy}",
+		"https_proxy":       "${localEnv:https_proxy}",
+		"HTTP_PROXY":        "${localEnv:HTTP_PROXY}",
+		"HTTPS_PROXY":       "${localEnv:HTTPS_PROXY}",
+		"ftp_proxy":         "${localEnv:ftp_proxy}",
+		"FTP_PROXY":         "${localEnv:FTP_PROXY}",
+		"no_proxy":          "${localEnv:no_proxy}",
+		"NO_PROXY":          "${localEnv:no_proxy}",
+		"JAVA_TOOL_OPTIONS": "${localEnv:CS_JAVA_OPTS}"
+	},
+
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+
+	// VS Code extensions installed once and cached in the persistent /vscode volume.
+	// They survive container stop/start without reinstallation.
+	// Only a full Rebuild triggers reinstallation (from cache, so still fast).
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Scala Language Server: autocomplete, type info, errors, go-to-def, rename, ...
+				// Supports Scala 3.x (including 3.8.x) out of the box.
+				"scalameta.metals",
+				// Official Scala syntax highlighting (complements Metals).
+				"scala-lang.scala"
+			]
+		}
+	}
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	//"remoteUser": "root"
+}

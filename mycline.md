@@ -336,3 +336,109 @@ scala-cli run scripts/hello.sc
 
 **Optionaler nächster Schritt – IDE-Support für .sc-Dateien:**
 `scala-cli setup-ide scripts/` erzeugt eine `.bsp/scala-cli.json`, mit der Metals auch Code-Completion in `.sc`-Dateien anbietet. Metals unterstützt seit v1.x mehrere BSP-Configs gleichzeitig (sbt für `src/`, scala-cli für `scripts/`).
+
+
+
+-------------------------------------------------------------------
+
+# Test-GUI für UserRoutes
+
+## ✅ User API Test-Interface erfolgreich implementiert
+
+Ich habe eine browserbasierte Lösung für das Testen Ihrer User-API erstellt:
+
+### Was wurde umgesetzt:
+
+1. **Neue Datei**: `src/main/scala/api/StaticRoutes.scala`
+   - Liefert HTML-Interface unter `http://localhost:8080/` aus
+   - Dark-Theme-Design gemäß Ihrem Design-System
+
+2. **Main.scala erweitert**
+   - Routes kombiniert: `StaticRoutes.routes <+> UserRoutes.routes`
+   - Root-Route (/) zeigt nun das Test-Interface
+
+### Features des Test-Interface:
+
+✅ **Formular** mit Feldern für ID, Name, Vorname (optional)  
+✅ **"Add User" Button** - sendet POST-Request an `/users`  
+✅ **"Load Users" Button** - lädt aktuelle User-Liste via GET  
+✅ **Automatische Anzeige** der User-Liste beim Laden  
+✅ **Success/Error Messages** mit visuellen Feedback  
+✅ **Dark Theme** mit primärer Farbe (#2665fd) für CTAs
+
+### So testen Sie es:
+
+1. Server starten (falls noch nicht gestartet): `sbt --client bgRun`
+2. Browser öffnen und zu `http://localhost:8080/` navigieren
+3. User hinzufügen und die Liste wird automatisch aktualisiert
+
+Die API-Endpunkte funktionieren weiterhin wie zuvor:
+- GET `http://localhost:8080/users` - Liste aller User
+- POST `http://localhost:8080/users` - Neuen User erstellen
+
+
+--------------------------
+## ✅ Refaktorierung von `StaticRoutes.scala` erfolgreich:
+
+1. **HTML-Content ausgelagert**: `src/main/resources/index.html`
+   - Die gesamte HTML-Seite befindet sich jetzt in einer separaten Datei
+   - Kann mit HTML-Editoren und IDE-Plugins bearbeitet werden
+   - Syntax-Highlighting und Auto-Completion funktionieren
+
+2. **StaticRoutes.scala vereinfacht**: 
+   - Lädt HTML-Content dynamisch aus den Resources via `Source.fromResource("index.html")`
+   - Nutzt `lazy val` für einmaliges Laden beim ersten Zugriff
+   - Saubere Trennung von Code und Content
+
+3. **Kompilierung erfolgreich**:
+   - Code kompiliert ohne Fehler
+   - Nur eine harmlose Deprecation-Warnung (nicht kritisch)
+
+### Vorteile der neuen Struktur:
+
+✅ HTML kann mit jedem Editor/Plugin bearbeitet werden  
+✅ Bessere Wartbarkeit durch Trennung von Markup und Logik  
+✅ Keine verschachtelten String-Literale mehr im Scala-Code  
+✅ Einfachere Zusammenarbeit (Frontend-Entwickler können HTML direkt editieren)  
+
+Die Anwendung funktioniert genau wie vorher - starten Sie einfach den Server mit `sbt --client bgRun` und öffnen Sie `http://localhost:8080/`.
+
+
+------------------------
+
+## ✅ Erfolgreich erweitert: User löschen per ID
+
+Ich habe beide Dateien erfolgreich angepasst:
+
+### 1. **UserRoutes.scala** - Backend-Änderungen:
+
+✅ **Map[Int, User] statt List[User]**
+   - Schneller Zugriff auf User per ID via `users.get(id)`
+   - Initial-Daten: Hans (1), Anna Müller (2), Peter Schmidt (3)
+
+✅ **DELETE-Route hinzugefügt**: `DELETE /users/:id`
+   - Löscht User mit der angegebenen ID
+   - Gibt Erfolgsmeldung zurück (200 OK) wenn gefunden
+   - Gibt Fehler zurück (404 Not Found) wenn ID nicht existiert
+
+✅ **POST-Route optimiert**: Nutzt `Map.updated()` für effizientes Hinzufügen/Aktualisieren
+
+### 2. **index.html** - Frontend-Änderungen:
+
+✅ **"Remove User" Button hinzugefügt** (zwischen Add User und Load Users)
+   - Neuer Button-Stil: `.btn-danger` mit Error-Farbe (#ffb4ab)
+   - Dunkler Text (#0b1326) für optimalen Kontrast
+
+✅ **`removeUser()` Funktion implementiert**
+   - Prüft, ob User ID eingegeben wurde
+   - Sendet DELETE-Request an `/users/{id}`
+   - Zeigt Success-/Error-Meldung an
+   - Lädt User-Liste automatisch nach erfolgreichem Löschen neu
+
+### So funktioniert es:
+
+1. **User löschen**: ID eingeben → "Remove User" klicken
+2. **User hinzufügen**: ID, Name (und optional Vorname) eingeben → "Add User" klicken  
+3. **Liste aktualisieren**: "Load Users" klicken
+
+Alle Änderungen sind kompiliert und einsatzbereit!

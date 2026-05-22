@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User API Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #0b1326;
+      color: #dae2fd;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      color: #dae2fd;
+    }
+    .card {
+      background-color: #162239;
+      border: 1px solid #2a3f5f;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      color: #dae2fd;
+      letter-spacing: 0.5px;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #0b1326;
+      border: 1px solid #2a3f5f;
+      border-radius: 8px;
+      color: #dae2fd;
+      font-size: 14px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #2665fd;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background-color: #2665fd;
+      color: white;
+      margin-right: 0.5rem;
+    }
+    .btn-primary:hover {
+      background-color: #1e52cc;
+    }
+    .btn-secondary {
+      background-color: #475569;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6c82;
+    }
+    .btn-danger {
+      background-color: #ffb4ab;
+      color: #0b1326;
+    }
+    .btn-danger:hover {
+      background-color: #ff9c93;
+    }
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    #userList {
+      margin-top: 1rem;
+    }
+    .user-item {
+      background-color: #0b1326;
+      border: 1px solid #2a3f5f;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .user-item strong {
+      color: #2665fd;
+    }
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .message.success {
+      background-color: rgba(38, 101, 253, 0.1);
+      border: 1px solid #2665fd;
+      color: #dae2fd;
+    }
+    .message.error {
+      background-color: rgba(255, 180, 171, 0.1);
+      border: 1px solid #ffb4ab;
+      color: #ffb4ab;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>User API Test</h1>
+    
+    <div id="message" class="message"></div>
+    
+    <div class="card">
+      <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Neuen User hinzufügen</h2>
+      <form id="userForm">
+        <div class="form-group">
+          <label for="userId">User ID</label>
+          <input type="number" id="userId" required>
+        </div>
+        <div class="form-group">
+          <label for="userName">Name (Nachname)</label>
+          <input type="text" id="userName" required>
+        </div>
+        <div class="form-group">
+          <label for="userVname">Vorname (optional)</label>
+          <input type="text" id="userVname">
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn-primary">Add User</button>
+          <button type="button" onclick="removeUser()" class="btn-danger">Remove User</button>
+          <button type="button" onclick="loadUsers()" class="btn-secondary">Load Users</button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="card">
+      <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">User Liste</h2>
+      <div id="userList"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080';
+
+    function showMessage(text, type) {
+      const msgEl = document.getElementById('message');
+      msgEl.textContent = text;
+      msgEl.className = `message ${type}`;
+      msgEl.style.display = 'block';
+      setTimeout(() => {
+        msgEl.style.display = 'none';
+      }, 3000);
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch(`${API_BASE}/users`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const users = await response.json();
+        
+        const userListEl = document.getElementById('userList');
+        if (users.length === 0) {
+          userListEl.innerHTML = '<p style="color: #475569;">Keine User vorhanden</p>';
+        } else {
+          userListEl.innerHTML = users.map(user => `
+            <div class="user-item">
+              <strong>ID:</strong> ${user.id} | 
+              <strong>Name:</strong> ${user.name}${user.vname ? ` ${user.vname}` : ''}
+            </div>
+          `).join('');
+        }
+        showMessage('User-Liste erfolgreich geladen', 'success');
+      } catch (error) {
+        showMessage(`Fehler beim Laden: ${error.message}`, 'error');
+        console.error('Error loading users:', error);
+      }
+    }
+
+    async function removeUser() {
+      const idInput = document.getElementById('userId');
+      const id = idInput.value;
+      
+      if (!id) {
+        showMessage('Bitte geben Sie eine User ID ein', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/users/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        showMessage(result.message || `User mit ID ${id} erfolgreich gelöscht`, 'success');
+        
+        // Liste neu laden
+        loadUsers();
+      } catch (error) {
+        showMessage(`Fehler beim Löschen: ${error.message}`, 'error');
+        console.error('Error removing user:', error);
+      }
+    }
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const id = parseInt(document.getElementById('userId').value);
+      const name = document.getElementById('userName').value;
+      const vname = document.getElementById('userVname').value;
+      
+      const user = {
+        id: id,
+        name: name
+      };
+      
+      if (vname) {
+        user.vname = vname;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(user)
+        });
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const createdUser = await response.json();
+        showMessage(`User "${createdUser.name}" erfolgreich erstellt`, 'success');
+        
+        // Form zurücksetzen und Liste neu laden
+        document.getElementById('userForm').reset();
+        loadUsers();
+      } catch (error) {
+        showMessage(`Fehler beim Erstellen: ${error.message}`, 'error');
+        console.error('Error creating user:', error);
+      }
+    });
+
+    // Initial load
+    loadUsers();
+  </script>
+</body>
+</html>

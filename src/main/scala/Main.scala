@@ -5,12 +5,13 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.HttpApp
 import com.comcast.ip4s.Port
-import api.UserRoutes
+import api.{UserRoutes, StaticRoutes}
 import com.comcast.ip4s.Host
+import cats.implicits.toSemigroupKOps
 
 object Main extends IOApp.Simple:
-  // einfache Beispiel‑Route; ersetze durch deine echten routes
-  private val routes = UserRoutes.routes
+  // Kombiniere Static- und User-Routes
+  private val routes = StaticRoutes.routes <+> UserRoutes.routes
 /*   private val routes = HttpRoutes.of[IO]:
     case GET -> Root / "api" / "health" => Ok("ok")
  */

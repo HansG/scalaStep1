@@ -1,0 +1,33 @@
+# Build artifacts (except the final JAR we need)
+target/**
+!target/scala-3.8.3/hello-scala-assembly-*.jar
+
+# Source code (not needed in runtime image)
+src/
+project/target/
+project/project/
+
+# IDE and dev tools
+.vscode/
+.devcontainer/
+.metals/
+.bsp/
+.idea/
+*.iml
+.scala-build/
+
+# Version control
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+bootzooka.docs/
+
+# Scripts
+scripts/
+
+# Misc
+.DS_Store
+*.log

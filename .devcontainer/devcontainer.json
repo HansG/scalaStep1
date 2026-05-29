@@ -28,8 +28,19 @@
 	},
 
 	"features": {
-		"ghcr.io/devcontainers/features/git:1": {}
+		"ghcr.io/devcontainers/features/git:1": {},
+		// Docker CLI installed, uses host Docker daemon via mounted socket
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+			"moby": false,
+			"installDockerBuildx": true,
+			"dockerDashComposeVersion": "v2"
+		}
 	},
+
+	// Mount host Docker socket so container can use host Docker daemon
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
 
 	// VS Code extensions installed once and cached in the persistent /vscode volume.
 	// They survive container stop/start without reinstallation.

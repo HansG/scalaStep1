@@ -4,8 +4,11 @@ import cats.effect.{IO, Ref}
 import cats.implicits.*
 import org.http4s.*
 import org.http4s.dsl.io.*
-import org.http4s.circe.*
-import io.circe.generic.auto.*
+import org.http4s.circe.CirceEntityCodec.*
+import io.circe.{Decoder, Encoder}
+/* import org.http4s.circe.*
+import io.circe.generic.auto.* */
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import model.User
 
 object UserRoutes :
@@ -18,10 +21,13 @@ object UserRoutes :
   
   private val usersRef = Ref.unsafe[IO, Map[Int, User]](initialUsers)
 
+  given Encoder[User] = deriveEncoder
+  given Decoder[User] = deriveDecoder
+  /* 
   given EntityEncoder[IO, List[User]] = jsonEncoderOf[IO, List[User]]
   given EntityEncoder[IO, User] = jsonEncoderOf[IO, User]
   given EntityDecoder[IO, User] = jsonOf[IO, User]
-
+ */
   val routes: HttpRoutes[IO] = HttpRoutes.of[IO]:
     case GET -> Root / "users" =>
       usersRef.get.flatMap(users => Ok(users.values.toList))
